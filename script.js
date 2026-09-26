@@ -69,7 +69,7 @@
   });
 
   function apiBase() {
-    return (apiBaseInput.value || "http://127.0.0.1:8000").trim().replace(/\/+$/, "");
+    return (apiBaseInput.value || "https://credit-risk-predictor-dwrn.onrender.com").trim().replace(/\/+$/, "");
   }
 
   /* ============================================================
