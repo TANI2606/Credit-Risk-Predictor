@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Risk Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="scanline" id="scanline"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <span class="brand-name">Credit Risk Engine</span>
+    </div>
+    <div class="topbar-right">
+      <button class="config-btn" id="configBtn" type="button" aria-label="API settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+      <div class="status-pill" id="statusPill">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">checking model…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- API CONFIG DRAWER -->
+  <div class="config-drawer" id="configDrawer">
+    <label for="apiBase">API base URL</label>
+    <div class="config-row">
+      <input type="text" id="apiBase" value="http://127.0.0.1:8000" spellcheck="false">
+      <button id="pingBtn" type="button">Check</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Will this loan default?</h1>
+    <p>Enter the applicant's profile below. The model returns a calibrated default probability and a pass / review decision in under a second.</p>
+  </section>
+
+  <!-- MAIN GRID -->
+  <main class="grid">
+
+    <!-- FORM -->
+    <form id="riskForm" class="ledger" autocomplete="off">
+
+      <div class="ledger-group">
+        <h2 class="ledger-title">Applicant</h2>
+
+        <div class="field-row">
+          <label for="person_age">Age</label>
+          <div class="field-input">
+            <input type="number" id="person_age" name="person_age" min="18" max="100" value="28" required>
+            <span class="unit">yrs</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="person_income">Annual income</label>
+          <div class="field-input">
+            <span class="unit unit-prefix">$</span>
+            <input type="number" id="person_income" name="person_income" min="0" step="100" value="55000" required>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="person_home_ownership">Home ownership</label>
+          <div class="field-input">
+            <select id="person_home_ownership" name="person_home_ownership" required>
+              <option value="RENT">Rent</option>
+              <option value="MORTGAGE">Mortgage</option>
+              <option value="OWN">Own</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="person_emp_length">Employment length</label>
+          <div class="field-input">
+            <input type="number" id="person_emp_length" name="person_emp_length" min="0" max="60" step="0.5" value="3" required>
+            <span class="unit">yrs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ledger-group">
+        <h2 class="ledger-title">Loan</h2>
+
+        <div class="field-row">
+          <label for="loan_intent">Purpose</label>
+          <div class="field-input">
+            <select id="loan_intent" name="loan_intent" required>
+              <option value="PERSONAL">Personal</option>
+              <option value="EDUCATION">Education</option>
+              <option value="MEDICAL">Medical</option>
+              <option value="VENTURE">Venture</option>
+              <option value="HOMEIMPROVEMENT">Home improvement</option>
+              <option value="DEBTCONSOLIDATION">Debt consolidation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="loan_grade">Grade</label>
+          <div class="field-input">
+            <select id="loan_grade" name="loan_grade" required>
+              <option value="A">A — lowest risk tier</option>
+              <option value="B" selected>B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="G">G — highest risk tier</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="loan_amnt">Amount requested</label>
+          <div class="field-input">
+            <span class="unit unit-prefix">$</span>
+            <input type="number" id="loan_amnt" name="loan_amnt" min="0" step="100" value="10000" required>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="loan_int_rate">Interest rate</label>
+          <div class="field-input">
+            <input type="number" id="loan_int_rate" name="loan_int_rate" min="0" max="40" step="0.01" value="10.5" required>
+            <span class="unit">%</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="loan_percent_income">Loan as % of income</label>
+          <div class="field-input">
+            <input type="number" id="loan_percent_income" name="loan_percent_income" min="0" max="100" step="0.1" value="18" required>
+            <span class="unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ledger-group">
+        <h2 class="ledger-title">Credit history</h2>
+
+        <div class="field-row">
+          <label for="cb_person_default_on_file">Prior default on file</label>
+          <div class="field-input">
+            <select id="cb_person_default_on_file" name="cb_person_default_on_file" required>
+              <option value="N">No</option>
+              <option value="Y">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label for="cb_person_cred_hist_length">Credit history length</label>
+          <div class="field-input">
+            <input type="number" id="cb_person_cred_hist_length" name="cb_person_cred_hist_length" min="0" max="60" step="1" value="4" required>
+            <span class="unit">yrs</span>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="run-btn" id="runBtn">
+        <span class="run-btn-label">Run assessment</span>
+        <span class="run-btn-loading">
+          <span class="spinner"></span>
+          Analyzing
+        </span>
+      </button>
+      <p class="form-error" id="formError"></p>
+    </form>
+
+    <!-- RESULT PANEL -->
+    <aside class="result-panel" id="resultPanel">
+
+      <div class="result-empty" id="resultEmpty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+        <p>Fill in the ledger and run an assessment to see the risk gauge.</p>
+      </div>
+
+      <div class="result-live" id="resultLive">
+
+        <div class="gauge-wrap">
+          <svg class="gauge" viewBox="0 0 240 150" id="gaugeSvg">
+            <defs>
+              <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2FD892"/>
+                <stop offset="50%" stop-color="#FFB443"/>
+                <stop offset="100%" stop-color="#FF5C7A"/>
+              </linearGradient>
+            </defs>
+            <path class="gauge-track" d="M 20 130 A 100 100 0 0 1 220 130" />
+            <path class="gauge-arc" d="M 20 130 A 100 100 0 0 1 220 130" stroke="url(#gaugeGradient)"/>
+            <g id="ticks"></g>
+            <line id="needle" x1="120" y1="130" x2="120" y2="42" class="needle" />
+            <circle cx="120" cy="130" r="7" class="needle-pivot" />
+          </svg>
+          <div class="gauge-readout">
+            <span class="gauge-value" id="gaugeValue">0.0%</span>
+            <span class="gauge-caption">default probability</span>
+          </div>
+        </div>
+
+        <div class="verdict" id="verdict">
+          <span class="verdict-badge" id="verdictBadge">—</span>
+          <span class="verdict-text" id="verdictText">Awaiting input</span>
+        </div>
+
+        <dl class="result-meta">
+          <div>
+            <dt>Raw probability</dt>
+            <dd id="metaScore" class="mono">—</dd>
+          </div>
+          <div>
+            <dt>Optimal threshold</dt>
+            <dd id="metaThreshold" class="mono">—</dd>
+          </div>
+          <div>
+            <dt>Model decision</dt>
+            <dd id="metaClass" class="mono">—</dd>
+          </div>
+        </dl>
+
+      </div>
+
+      <div class="result-error" id="resultErrorBox">
+        <p id="resultErrorText"></p>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <footer class="foot">
+    <span>Predictions are informational only and don't constitute a lending decision.</span>
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
